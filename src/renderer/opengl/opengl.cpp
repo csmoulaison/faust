@@ -224,10 +224,10 @@ void platform_render_update(Render::Context* renderer, Render::State* render_sta
 	}
 
 	// Draw noise
-	glUseProgram(gl->noise_program);
-	glBindVertexArray(gl->quad_vao);
-	glUniform2f(glGetUniformLocation(gl->noise_program, "delta"), random_f32() * 1000.0f + 500.0f, random_f32() * 1000.0f + 500.0f);
-	glDrawArrays(GL_TRIANGLES, 0, 6);
+	//glUseProgram(gl->noise_program);
+	//glBindVertexArray(gl->quad_vao);
+	//glUniform2f(glGetUniformLocation(gl->noise_program, "delta"), random_f32() * 1000.0f + 500.0f, random_f32() * 1000.0f + 500.0f);
+	//glDrawArrays(GL_TRIANGLES, 0, 6);
 
 	// Unbind stuff
 	glBindVertexArray(0);
