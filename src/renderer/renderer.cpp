@@ -141,8 +141,8 @@ skip_interpolation:
 			x_placements[i] -= off_x;
 			y_placements[i] -= off_y;
 
-			x_placements[i] = floor(x_placements[i]);
-			y_placements[i] = floor(y_placements[i]);
+			x_placements[i] = x_placements[i];
+			y_placements[i] = y_placements[i];
 		}
 	}
 

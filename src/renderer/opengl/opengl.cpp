@@ -15,6 +15,8 @@ typedef struct {
 
 	u32 text_program;
 	u32 text_buffer_ssbo;
+
+	u32 noise_program;
 } GlBackend;
 
 u32 gl_compile_shader(const char* filename, GLenum type)
@@ -97,9 +99,11 @@ Render::Context* platform_render_init(Windowing::Context* window, Arena* arena)
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
+	glDepthFunc(GL_LEQUAL);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	gl->quad_program = gl_create_program("shaders/quad.vert", "shaders/quad.frag");
+	gl->noise_program = gl_create_program("shaders/noise.vert", "shaders/noise.frag");
 
 	// Quad vertex array/buffer
 	f32 quad_vertices[] = {
@@ -150,7 +154,7 @@ void platform_render_update(Render::Context* renderer, Render::State* render_sta
 	}
 	
 	// Gl render
-	glClearColor(0.2f, 0.4f, 0.6f, 1);
+	glClearColor(0.0f, 0.0f, 0.0f, 1);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// Draw rects
@@ -219,6 +223,12 @@ void platform_render_update(Render::Context* renderer, Render::State* render_sta
 		glDrawArraysInstanced(GL_TRIANGLES, 0, 6, list->characters_len);
 	}
 
+	// Draw noise
+	glUseProgram(gl->noise_program);
+	glBindVertexArray(gl->quad_vao);
+	glUniform2f(glGetUniformLocation(gl->noise_program, "delta"), random_f32() * 1000.0f + 500.0f, random_f32() * 1000.0f + 500.0f);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+
 	// Unbind stuff
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -241,7 +251,7 @@ u32 platform_create_texture_mono(Render::Context* renderer, u8* pixels, u32 w, u
 		pixels);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	return id;
 }
