@@ -1,7 +1,7 @@
 mkdir ../bin
 cp -r ../src/shaders ../bin/
 
-./fonts/atlas ./fonts/Ovo-Regular.ttf ../bin/fonts/ovo_small.cmfont 32 > /dev/null
+./fonts/atlas ./fonts/Ovo-Regular.ttf ../bin/fonts/ovo_small.cmfont 48 > /dev/null
 ./fonts/atlas ./fonts/Ovo-Regular.ttf ../bin/fonts/ovo_large.cmfont 108 > /dev/null
 
 g++ -g -o ../bin/faust \
