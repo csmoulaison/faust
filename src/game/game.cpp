@@ -102,7 +102,12 @@ void game_update(Game* game, Windowing::Context* window, Render::Context* render
 			u32 char_index = string_offset + j;
 			AnimatedChar* attributes = &game->char_attributes[char_index];
 
-			if(t > (i - 0.5f) * 6.5f + j * 0.025f) {
+			// Text line animation configuration.
+			float line_interval_seconds = 4.5f;
+			float line_transition_seconds = 2.0f;
+
+			float update_threshold = i * line_interval_seconds - 0.5f + j * (line_transition_seconds / len);
+			if(t > update_threshold) {
 				attributes->opacity += 0.001f * attributes->speed;
 				if(attributes->opacity > 1.0f) {
 					attributes->opacity = 1.0f;
