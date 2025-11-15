@@ -18,6 +18,7 @@ struct Game {
 	u32 frames_since_init;
 
 	Windowing::ButtonHandle quit_button;
+	Windowing::ButtonHandle continue_button;
 
 	char char_buffer[MAX_ANIMATED_CHARS];
 	AnimatedChar char_attributes[MAX_ANIMATED_CHARS];
@@ -26,6 +27,9 @@ struct Game {
 
 	PageLine page_lines[MAX_PAGE_LINES];
 	u32 page_lines_len;
+
+	u32 visible_line_index;
+	float t;
 };
 
 u32 create_animated_string(Game* game, const char* string)
@@ -56,6 +60,7 @@ Game* game_init(Windowing::Context* window, Arena* arena)
 	game->frames_since_init = 0;
 
 	game->quit_button = Windowing::register_key(window, Windowing::Keycode::Escape);
+	game->continue_button = Windowing::register_key(window, Windowing::Keycode::Space);
 
 	game->strings_len = 0;
 	game->string_offsets[0] = 0;
@@ -69,6 +74,8 @@ Game* game_init(Windowing::Context* window, Arena* arena)
 	game->page_lines[6].string_id = create_animated_string(game, "That is where he continues to practice his art.");
 	game->page_lines_len = 7;
 
+	game->visible_line_index = 0;
+
 	return game;
 }
 
@@ -77,7 +84,17 @@ void game_update(Game* game, Windowing::Context* window, Render::Context* render
 	game->close_requested = Windowing::button_down(window, game->quit_button);
 	game->frames_since_init++;
 
-	float t = game->frames_since_init / 200.0f;
+	if(Windowing::button_pressed(window, game->continue_button)) {
+		game->visible_line_index++;
+	}
+
+	// Text line animation configuration.
+	float line_interval_seconds = 2.1f;
+	float line_transition_seconds = 2.0f;
+
+	if(game->t < line_interval_seconds * (game->visible_line_index + 1)) {
+		game->t += BASE_FRAME_LENGTH;
+	}
 
 	for(i32 i = 0; i < game->page_lines_len; i++) {
 		PageLine* line = &game->page_lines[i];
@@ -102,12 +119,8 @@ void game_update(Game* game, Windowing::Context* window, Render::Context* render
 			u32 char_index = string_offset + j;
 			AnimatedChar* attributes = &game->char_attributes[char_index];
 
-			// Text line animation configuration.
-			float line_interval_seconds = 4.5f;
-			float line_transition_seconds = 2.0f;
-
-			float update_threshold = i * line_interval_seconds - 0.5f + j * (line_transition_seconds / len);
-			if(t > update_threshold) {
+			float update_threshold = i * line_interval_seconds + 0.1f + j * (line_transition_seconds / len);
+			if(game->t > update_threshold) {
 				attributes->opacity += 0.001f * attributes->speed;
 				if(attributes->opacity > 1.0f) {
 					attributes->opacity = 1.0f;
